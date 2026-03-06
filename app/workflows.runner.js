@@ -164,10 +164,11 @@ window.DPRWorkflowRunner = (function () {
     return 'daily-now';
   };
 
-  const setStatus = (text, color) => {
+  const setStatus = (text, color, options = {}) => {
     if (!statusEl) return;
     statusEl.textContent = text || '';
     statusEl.style.color = color || '#666';
+    statusEl.classList.toggle('is-waiting', !!(options && options.waiting));
   };
 
   const ensureOverlay = () => {
@@ -355,7 +356,7 @@ window.DPRWorkflowRunner = (function () {
           .forEach((n) => n.classList.remove('is-active'));
         btn.classList.add('is-active');
         selectedRun = { owner, repo, runId, token: loadGithubToken() };
-        setStatus(`正在加载运行详情：run_id=${runId}`, '#666');
+        setStatus(`正在加载运行详情：run_id=${runId}`, '#666', { waiting: true });
         await refreshRun(owner, repo, runId);
         refreshTimer = setInterval(() => {
           if (!selectedRun) return;
@@ -481,7 +482,7 @@ window.DPRWorkflowRunner = (function () {
       return;
     }
 
-    setStatus(`正在触发工作流：${wf.name || workflowFile} ...`, '#666');
+    setStatus(`正在触发工作流：${wf.name || workflowFile} ...`, '#666', { waiting: true });
     runsEl.innerHTML = '<div style="color:#999;">正在触发，请稍候...</div>';
     stopPolling();
     activeRun = null;
@@ -511,7 +512,7 @@ window.DPRWorkflowRunner = (function () {
         throw new Error(`触发失败：HTTP ${res.status} ${res.statusText} - ${txt}`);
       }
 
-      setStatus('已触发，正在等待运行记录创建...', '#666');
+      setStatus('已触发，正在等待运行记录创建...', '#666', { waiting: true });
 
       // 轮询找到本次 dispatch 对应的 run
       const lookup = async () => {
@@ -554,7 +555,7 @@ window.DPRWorkflowRunner = (function () {
 
       activeRun = { owner, repo, runId: run.id, token };
       selectedRun = activeRun;
-      setStatus(`运行已创建：run_id=${run.id}，开始拉取进度...`, '#080');
+      setStatus(`运行已创建：run_id=${run.id}，开始拉取进度...`, '#080', { waiting: true });
       await refreshRun(owner, repo, run.id);
 
       refreshTimer = setInterval(() => {
@@ -671,13 +672,16 @@ window.DPRWorkflowRunner = (function () {
 
       if (run.status === 'completed') {
         stopPolling();
-        setStatus(`运行已结束：${run.conclusion || 'completed'}`, run.conclusion === 'success' ? '#080' : '#c00');
+        setStatus(
+          `运行已结束：${run.conclusion || 'completed'}`,
+          run.conclusion === 'success' ? '#080' : '#c00',
+        );
         // run 状态结束后，刷新“最近运行”列表，确保 completed/success 等状态能及时反映
         if (prevStateKey !== stateKey) {
           loadRecentRuns();
         }
       } else {
-        setStatus('运行中：每 5 秒自动刷新...', '#1565c0');
+        setStatus('运行中：每 5 秒自动刷新...', '#1565c0', { waiting: true });
       }
     } catch (e) {
       console.error(e);
