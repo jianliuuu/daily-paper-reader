@@ -387,7 +387,7 @@ class BltClient(LLMClient):
         if not documents:
             raise ValueError("rerank: documents 不能为空")
 
-        api_key = (os.getenv('LLM_API_KEY') or '').strip()
+        api_key = (os.getenv('Reranker_LLM_API_KEY') or '').strip()
         
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -404,8 +404,9 @@ class BltClient(LLMClient):
         request_bases = self._iter_retry_bases(total_attempts=6)
         last_error: Exception | None = None
         for attempt_idx, req_base in enumerate(request_bases, start=1):
-            # request_url = f"{req_base.rstrip('/')}/rerank"
-            request_url = (os.getenv('LLM_API_KEY') or '').strip()
+            
+            request_url = (os.getenv('Reranker_LLM_BASE_URL') or '').strip()
+            
             try:
                 response = requests.post(request_url, headers=headers, json=payload, timeout=120)
                 response.raise_for_status()
