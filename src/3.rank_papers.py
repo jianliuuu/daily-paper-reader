@@ -429,9 +429,9 @@ def main() -> None:
     log(f"[WARN] 输入文件不存在（今天可能没有新论文）：{input_path}，将跳过 Step 3。")
     return
 
-  api_key = os.getenv("BLT_API_KEY")
+  api_key = os.getenv("Reranker_LLM_API_KEY")
   if not api_key:
-    raise RuntimeError("缺少 BLT_API_KEY 环境变量，无法调用 BLT Rerank API。")
+    raise RuntimeError("缺少 Reranker_LLM_API_KEY 环境变量，无法调用 Reranker_LLM_API_KEY。")
 
   reranker = BltClient(api_key=api_key, model=args.rerank_model)
   process_file(
