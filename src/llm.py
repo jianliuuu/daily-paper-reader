@@ -405,7 +405,7 @@ class BltClient(LLMClient):
         last_error: Exception | None = None
         for attempt_idx, req_base in enumerate(request_bases, start=1):
             
-            request_url = (os.getenv('Reranker_LLM_BASE_URL') or '').strip()
+            request_url = "https://api.bltcy.ai/v1/rerank".strip()
             
             try:
                 response = requests.post(request_url, headers=headers, json=payload, timeout=120)
