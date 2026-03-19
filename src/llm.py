@@ -387,7 +387,7 @@ class BltClient(LLMClient):
         if not documents:
             raise ValueError("rerank: documents 不能为空")
 
-        api_key = (os.getenv('Reranker_LLM_API_KEY') or '').strip()
+        self.api_key = (os.getenv('Reranker_LLM_API_KEY') or '').strip()
         
         headers = {
             "Authorization": f"Bearer {self.api_key}",
