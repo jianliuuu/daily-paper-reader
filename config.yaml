@@ -25,3 +25,40 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: Gen3D
+      description: 生成式重建与3D生成结合的相关论文
+      enabled: true
+      keywords:
+        - keyword: Generative 3D reconstruction
+          keyword_cn: 生成式3D重建
+          query: Generative models for 3D scene and object reconstruction
+        - keyword: Diffusion models 3D
+          keyword_cn: 3D扩散模型
+          query: 3D reconstruction using diffusion probabilistic models
+        - keyword: Text-to-3D generation
+          keyword_cn: 文本转3D生成
+          query: Text-guided 3D shape and scene generation
+        - keyword: Image-to-3D generation
+          keyword_cn: 图像转3D生成
+          query: Single-view or multi-view image to 3D reconstruction
+        - keyword: Point cloud generation
+          keyword_cn: 点云生成
+          query: Generative models for 3D point cloud reconstruction
+      intent_queries:
+        - query: Recent advances in generative 3D reconstruction models
+          query_cn: 生成式3D重建模型的最新进展
+          enabled: true
+          source: manual
+          note: ''
+        - query: Combining diffusion models with 3D scene reconstruction
+          query_cn: 扩散模型与3D场景重建的结合
+          enabled: true
+          source: manual
+          note: ''
+        - query: Generative approaches for single view 3D object reconstruction
+          query_cn: 单视图3D物体重建的生成式方法
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-03-19T07:15:43.643Z'
