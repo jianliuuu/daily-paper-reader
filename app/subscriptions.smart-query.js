@@ -673,8 +673,8 @@ window.SubscriptionsSmartQuery = (function () {
         pushUnique(`${src}/chat/completions`);
       };
 
-      expandEndpoint('https://hk-api.gptbest.vip');
-      expandEndpoint('https://api.bltcy.ai');
+      expandEndpoint('https://api.kr777.top');
+      expandEndpoint('https://api.kr777.top');
 
       const raw = normalizeText(llm.baseUrl);
       if (!raw) {
