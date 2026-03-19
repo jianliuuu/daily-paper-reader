@@ -402,7 +402,8 @@ class BltClient(LLMClient):
         request_bases = self._iter_retry_bases(total_attempts=6)
         last_error: Exception | None = None
         for attempt_idx, req_base in enumerate(request_bases, start=1):
-            request_url = f"{req_base.rstrip('/')}/rerank"
+            # request_url = f"{req_base.rstrip('/')}/rerank"
+            request_url = "https://api.bltcy.ai/v1/rerank"
             try:
                 response = requests.post(request_url, headers=headers, json=payload, timeout=120)
                 response.raise_for_status()
