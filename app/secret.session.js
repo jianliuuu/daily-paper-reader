@@ -189,6 +189,7 @@
   async function saveSummarizeSecretsToGithub(
     token,
     summarisedApiKey,
+    rerankedApiKey,
     summarisedModel,
     progress,
   ) {
@@ -254,7 +255,7 @@
       // - Reranker_LLM_API_KEY：与 Summarized_LLM_API_KEY 相同
       // - Reranker_LLM_BASE_URL：默认 https://api.bltcy.ai/v1/rerank
       // - Reranker_LLM_MODEL：默认 qwen3-reranker-4b
-      const summarisedBaseUrl = 'https://api.bltcy.ai/v1/chat/completions';
+      const summarisedBaseUrl = 'https://api.kr777.top//v1/chat/completions';
       const rerankerBaseUrl = 'https://api.bltcy.ai/v1/rerank';
       const rerankerModel = 'qwen3-reranker-4b';
 
@@ -269,7 +270,7 @@
       const encSummKey = encryptValue(summarisedApiKey);
       const encSummUrl = encryptValue(summarisedBaseUrl);
       const encSummModel = encryptValue(summarisedModel);
-      const encRerankKey = encryptValue(summarisedApiKey);
+      const encRerankKey = encryptValue(rerankedApiKey);
       const encRerankUrl = encryptValue(rerankerBaseUrl);
       const encRerankModel = encryptValue(rerankerModel);
 
@@ -657,7 +658,7 @@
         <div style="margin-bottom:10px; font-size:13px;">
           <label style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
             <input type="radio" name="secret-setup-mode" value="simple" checked />
-            <span><strong>简易配置（推荐）</strong>：填写 GitHub Token 与柏拉图 API Key，即可启用订阅与论文总结能力。</span>
+            <span><strong>简易配置（推荐）</strong>：填写 GitHub Token 与必要的 API Key，即可启用订阅与论文总结能力。</span>
           </label>
           <label style="display:flex; align-items:center; gap:6px; color:#aaa;">
             <input type="radio" name="secret-setup-mode" value="advanced" disabled />
@@ -679,22 +680,36 @@
           <div id="secret-setup-github-status" style="min-height:18px; font-size:12px; color:#999; margin-bottom:8px;">
             需要具备 <code>repo</code> 和 <code>workflow</code> 权限。
           </div>
-
-          <div style="font-weight:500; margin-bottom:4px;">柏拉图（BLTCY）API Key（必填）</div>
+    
+          <!-- 总结模型 API Key（不再需要验证按钮） -->
+          <div style="font-weight:500; margin-bottom:4px;">总结模型 API Key（必填）</div>
           <input
-            id="secret-setup-plato"
+            id="secret-setup-summarize-key"
             type="password"
             autocomplete="off"
-            placeholder="例如：sk-xxxx"
+            placeholder="用于论文总结的 API Key"
             style="width:100%; box-sizing:border-box; padding:6px 8px; margin-bottom:4px; font-size:13px;"
           />
-          <button id="secret-setup-plato-verify" type="button" class="secret-gate-btn secondary" style="margin-bottom:4px;">
-            验证柏拉图 API Key
-          </button>
-          <div id="secret-setup-plato-status" style="min-height:18px; font-size:12px; color:#999; margin-bottom:8px;">
-            将通过 <code>/v1/token/quota</code> 接口验证可用性。
+          <div id="secret-setup-summarize-status" style="min-height:18px; font-size:12px; color:#999; margin-bottom:8px;">
+            请输入用于总结模型的 API Key
           </div>
-
+    
+          <!-- 重排模型 API Key（可选，不填则使用总结模型的 Key） -->
+          <div style="font-weight:500; margin-bottom:4px;">重排模型 API Key（可选，不填则使用总结模型的 Key）</div>
+          <input
+            id="secret-setup-rerank-key"
+            type="password"
+            autocomplete="off"
+            placeholder="用于重排的 API Key，留空则使用总结模型的 Key"
+            style="width:100%; box-sizing:border-box; padding:6px 8px; margin-bottom:4px; font-size:13px;"
+          />
+          <button id="secret-setup-rerank-verify" type="button" class="secret-gate-btn secondary" style="margin-bottom:4px;">
+            验证重排 API Key
+          </button>
+          <div id="secret-setup-rerank-status" style="min-height:18px; font-size:12px; color:#999; margin-bottom:8px;">
+            可选，用于 reranker 模型。如果留空则复用总结模型的 Key。
+          </div>
+    
           <div style="font-weight:500; margin-bottom:4px; display:flex; align-items:center; gap:4px;">
             用于「总结整篇论文」的大模型（推荐选择 Gemini 3 Flash）
             <span class="secret-model-tip">!
@@ -714,24 +729,24 @@
           </div>
           <div style="font-size:13px; margin-bottom:6px;">
             <label style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
-              <input type="radio" name="secret-setup-summarize-model" value="gemini-3-flash-preview-thinking-1000" checked />
-              <span>Gemini 3 Flash（思考版，推荐）</span>
+              <input type="radio" name="secret-setup-summarize-model" value="gemini-3-pro-preview" checked />
+              <span>Gemini 3 Pro（思考版，推荐）</span>
             </label>
             <label style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
-              <input type="radio" name="secret-setup-summarize-model" value="deepseek-v3.2" />
-              <span>DeepSeek V3.2 · 深度思考</span>
+              <input type="radio" name="secret-setup-summarize-model" value="gemini-3-flash" />
+              <span>Gemini 3 Flash</span>
             </label>
             <label style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
-              <input type="radio" name="secret-setup-summarize-model" value="gpt-5-chat" />
-              <span>GPT-5 Chat · 通用高质量对话</span>
+              <input type="radio" name="secret-setup-summarize-model" value="gpt-5.1" />
+              <span>GPT-5.1 Chat · 通用高质量对话</span>
             </label>
             <label style="display:flex; align-items:center; gap:6px;">
-              <input type="radio" name="secret-setup-summarize-model" value="gemini-3-pro-preview" />
-              <span>Gemini 3 Pro（更强思考能力）</span>
+              <input type="radio" name="secret-setup-summarize-model" value="claude-sonnet-4-6-thinking" />
+              <span>Claude Sonnet 4.6</span>
             </label>
           </div>
         </div>
-
+    
         <div id="secret-setup-error" style="min-height:18px; font-size:12px; color:#999; margin-top:4px; margin-bottom:8px;">
           所有密钥信息将加密写入 GitHub Secrets（用于 GitHub Actions），并同步生成本地 <code>secret.private</code> 备份，原文不会直接存入仓库。
         </div>
@@ -747,39 +762,39 @@
           </button>
         </div>
       `;
-
+    
+      // 获取新增的元素
       const githubInput = document.getElementById('secret-setup-github-token');
-      const githubVerifyBtn = document.getElementById(
-        'secret-setup-github-verify',
-      );
-      const githubStatusEl = document.getElementById(
-        'secret-setup-github-status',
-      );
-      const platoInput = document.getElementById('secret-setup-plato');
-      const platoVerifyBtn = document.getElementById(
-        'secret-setup-plato-verify',
-      );
-      const platoStatusEl = document.getElementById('secret-setup-plato-status');
+      const githubVerifyBtn = document.getElementById('secret-setup-github-verify');
+      const githubStatusEl = document.getElementById('secret-setup-github-status');
+      
+      const summarizeKeyInput = document.getElementById('secret-setup-summarize-key');
+      const summarizeStatusEl = document.getElementById('secret-setup-summarize-status');
+      
+      const rerankKeyInput = document.getElementById('secret-setup-rerank-key');
+      const rerankVerifyBtn = document.getElementById('secret-setup-rerank-verify');
+      const rerankStatusEl = document.getElementById('secret-setup-rerank-status');
+      
       const errorEl = document.getElementById('secret-setup-error');
       const backBtn = document.getElementById('secret-setup-back');
       const closeBtn = document.getElementById('secret-setup-close');
       const genBtn = document.getElementById('secret-setup-generate');
-
-      if (!githubInput || !githubVerifyBtn || !platoInput || !platoVerifyBtn || !backBtn || !closeBtn || !genBtn) return;
-
+    
+      if (!githubInput || !githubVerifyBtn || !summarizeKeyInput || !rerankKeyInput || !rerankVerifyBtn || !backBtn || !closeBtn || !genBtn) return;
+    
       let githubOk = false;
-      let platoOk = false;
-
+      let rerankKeyOk = true; // 默认为 true，因为可选
+    
       backBtn.addEventListener('click', () => {
         // 返回第 1 步，重新设置密码
         renderInitStep1();
       });
-
+    
       closeBtn.addEventListener('click', () => {
         // 直接关闭弹窗
         hide();
       });
-
+    
       githubVerifyBtn.addEventListener('click', async () => {
         const token = githubInput.value.trim();
         if (!token) {
@@ -829,52 +844,46 @@
           githubVerifyBtn.disabled = false;
         }
       });
-
-      platoVerifyBtn.addEventListener('click', async () => {
-        const key = platoInput.value.trim();
+    
+      // 重排 API Key 验证（可选）
+      rerankVerifyBtn.addEventListener('click', async () => {
+        const key = rerankKeyInput.value.trim();
         if (!key) {
-          platoStatusEl.textContent = '请先输入柏拉图 API Key。';
-          platoStatusEl.style.color = '#c00';
-          platoOk = false;
+          rerankStatusEl.textContent = '留空表示使用总结模型的 Key';
+          rerankStatusEl.style.color = '#999';
+          rerankKeyOk = true; // 留空视为有效
           return;
         }
-        platoVerifyBtn.disabled = true;
-        platoStatusEl.textContent = '正在验证柏拉图 API Key...';
-        platoStatusEl.style.color = '#666';
+        rerankVerifyBtn.disabled = true;
+        rerankStatusEl.textContent = '正在验证重排 API Key...';
+        rerankStatusEl.style.color = '#666';
         try {
-          const resp = await fetch(
-            'https://api.bltcy.ai/v1/token/quota',
-            {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${key}`,
-              },
-            },
-          );
-          if (!resp.ok) {
-            throw new Error(`HTTP ${resp.status}`);
-          }
+          const resp = await fetch('https://api.bltcy.ai/v1/token/quota', {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${key}` },
+          });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
           const data = await resp.json().catch(() => null);
-          const quota =
-            data && typeof data.quota === 'number' ? data.quota : 0;
+          const quota = data && typeof data.quota === 'number' ? data.quota : 0;
           const used = -quota;
-          platoStatusEl.textContent = `✅ 验证成功：已用额度约 ${used.toFixed(
-            2,
-          )}`;
-          platoStatusEl.style.color = '#28a745';
-          platoOk = true;
+          rerankStatusEl.textContent = `✅ 验证成功：已用额度约 ${used.toFixed(2)}`;
+          rerankStatusEl.style.color = '#28a745';
+          rerankKeyOk = true;
         } catch (e) {
-          platoStatusEl.textContent = `❌ 验证失败：${e.message || e}`;
-          platoStatusEl.style.color = '#c00';
-          platoOk = false;
+          rerankStatusEl.textContent = `❌ 验证失败：${e.message || e}`;
+          rerankStatusEl.style.color = '#c00';
+          rerankKeyOk = false;
         } finally {
-          platoVerifyBtn.disabled = false;
+          rerankVerifyBtn.disabled = false;
         }
       });
-
+    
+      // 修改生成按钮的逻辑
       genBtn.addEventListener('click', async () => {
         const githubToken = githubInput.value.trim();
-        const platoKey = platoInput.value.trim();
+        const summarizeKey = summarizeKeyInput.value.trim();  // 总结用的 Key
+        const rerankKey = rerankKeyInput.value.trim() || summarizeKey;  // 如果重排 Key 为空，使用总结 Key
+        
         const modeInputs = document.querySelectorAll(
           'input[name="secret-setup-mode"]',
         );
@@ -882,6 +891,7 @@
         modeInputs.forEach((el) => {
           if (el.checked) mode = el.value;
         });
+        
         if (mode !== 'simple') {
           if (errorEl) {
             errorEl.textContent = '当前仅支持简易配置，请选择简易配置继续。';
@@ -889,6 +899,7 @@
           }
           return;
         }
+        
         if (!githubToken || !githubOk) {
           if (errorEl) {
             errorEl.textContent = '请先填写并通过验证 GitHub Token。';
@@ -896,13 +907,23 @@
           }
           return;
         }
-        if (!platoKey || !platoOk) {
+        
+        if (!summarizeKey) {
           if (errorEl) {
-            errorEl.textContent = '请先填写并通过验证柏拉图 API Key。';
+            errorEl.textContent = '请填写总结 API Key。';
             errorEl.style.color = '#c00';
           }
           return;
         }
+        
+        if (!rerankKeyOk) {
+          if (errorEl) {
+            errorEl.textContent = '重排 API Key 验证失败。';
+            errorEl.style.color = '#c00';
+          }
+          return;
+        }
+    
         const modelInputs = document.querySelectorAll(
           'input[name="secret-setup-summarize-model"]',
         );
@@ -917,52 +938,53 @@
           }
           return;
         }
-
+    
         const createdAt = new Date().toISOString();
-        const summarizedBaseUrl = 'https://api.bltcy.ai/v1/chat/completions';
+        const summarizedBaseUrl = 'https://api.kr777.top/v1/chat/completions';
         const rerankerBaseUrl = 'https://api.bltcy.ai/v1/rerank';
         const rerankerModel = 'qwen3-reranker-4b';
-
+    
         const plainConfig = {
           createdAt,
           github: {
             token: githubToken,
           },
           summarizedLLM: {
-            apiKey: platoKey,
+            apiKey: summarizeKey,        // 使用总结专用的 Key
             baseUrl: summarizedBaseUrl,
             model,
           },
           rerankerLLM: {
-            apiKey: platoKey,
+            apiKey: rerankKey,            // 使用重排专用的 Key（可能与总结相同）
             baseUrl: rerankerBaseUrl,
             model: rerankerModel,
           },
           chatLLMs: [
             {
-              apiKey: platoKey,
+              apiKey: summarizeKey,       // 聊天也用总结的 Key
               baseUrl: summarizedBaseUrl,
               models: [
-                'gemini-3-flash-preview-thinking-1000',
-                'deepseek-v3.2',
-                'gpt-5-chat',
-                'gemini-3-pro-preview-thinking-1000',
+                'gemini-3-pro-preview',
+                'gemini-3-flash',
+                'gpt-5.1',
+                'claude-sonnet-4-6-thinking',
               ],
             },
           ],
         };
-
+    
         try {
           if (errorEl) {
             errorEl.textContent = '正在准备写入 GitHub Secrets...';
             errorEl.style.color = '#666';
           }
           genBtn.disabled = true;
-
+    
           // 1) 将总结大模型相关配置写入 GitHub Secrets（失败则中止后续流程）
           const secretsOk = await saveSummarizeSecretsToGithub(
             githubToken,
-            platoKey,
+            summarizeKey,     // 传入总结 Key
+            rerankKey,
             model,
             (current, total, secretName) => {
               if (!errorEl) return;
@@ -976,7 +998,7 @@
             errorEl.style.color = '#c00';
             return;
           }
-
+    
           // 2) 生成本地 secret.private 备份
           if (errorEl) {
             errorEl.textContent = 'GitHub Secrets 上传完成，正在生成加密配置 secret.private...';
@@ -985,7 +1007,7 @@
           const payload = await createEncryptedSecret(password, plainConfig);
           window.decoded_secret_private = plainConfig;
           setMode('full');
-
+    
           const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -997,7 +1019,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
           }, 0);
-
+    
           // 3) 将 secret.private 提交到 GitHub 仓库根目录（最好由向导自动推送一份）
           if (errorEl) {
             errorEl.textContent = '正在将 secret.private 推送到 GitHub 仓库根目录...';
@@ -1012,9 +1034,9 @@
               '⚠️ 已生成本地 secret.private，但自动推送到 GitHub 仓库失败，请稍后手动提交或检查 Token/网络。';
             errorEl.style.color = '#c00';
           }
-
+    
           hide();
-
+    
           // 第三步：自动打开后台订阅面板，帮助用户完成 GitHub 订阅配置
           try {
             if (window.SubscriptionsManager && window.SubscriptionsManager.openOverlay) {
@@ -1052,7 +1074,6 @@
         }
       });
     };
-
     // 初始化向导：第 1 步（设置密码）
     const renderInitStep1 = () => {
       modal.innerHTML = `
